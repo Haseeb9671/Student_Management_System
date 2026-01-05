@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University LMS - Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .login-left {
+            background: linear-gradient(135deg, #26538D 0%, #4A90E2 100%);
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+        }
+
+        .login-left i {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.9;
+        }
+
+        .login-left h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-left p {
+            font-size: 1rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .login-right {
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-right h2 {
+            font-size: 1.75rem;
+            color: #1F2937;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .login-right .subtitle {
+            color: #6B7280;
+            margin-bottom: 2rem;
+            font-size: 0.875rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            color: #374151;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9CA3AF;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.75rem;
+            border: 1.5px solid #E5E7EB;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: all 0.3s;
+            color: #1F2937;
+        }
+
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: #4A90E2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 0.875rem;
+            background: linear-gradient(135deg, #26538D 0%, #4A90E2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 0.5rem;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(74, 144, 226, 0.3);
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #6B7280;
+            font-size: 0.875rem;
+        }
+
+        .register-link a {
+            color: #4A90E2;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: #9CA3AF;
+            font-size: 0.75rem;
+        }
+
+        /* QR Code Modal */
+        .qr-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qr-modal.active {
+            display: flex;
+        }
+
+        .qr-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .qr-content h3 {
+            color: #1F2937;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .qr-content p {
+            color: #6B7280;
+            margin-bottom: 1.5rem;
+        }
+
+        #qrCode {
+            display: flex;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+
+        .close-qr {
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            background: #E5E7EB;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .close-qr:hover {
+            background: #D1D5DB;
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                grid-template-columns: 1fr;
+            }
+
+            .login-left {
+                padding: 2rem;
+            }
+
+            .login-left h1 {
+                font-size: 1.5rem;
+            }
+
+            .login-right {
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <div class="login-left">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <h1>Welcome Back!</h1>
+            <p>Log in to access your dashboard and manage your academic journey</p>
+        </div>
+
+        <div class="login-right">
+            <h2>Sign In</h2>
+            <p class="subtitle">Enter your credentials to continue</p>
+
+            <form action="/login" method="POST">
+                <div class="input-group">
+                    <label>Login ID</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" name="username" placeholder="Enter your ID" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" name="password" placeholder="Enter your password" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="login-btn">
+                    <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                </button>
+            </form>
+
+            <div class="register-link">
+                New Student? <a href="#" id="showQR">Register via QR Code</a>
+            </div>
+
+            <div class="footer">
+                Made with ❤️ by Haseeb and Hassaan
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Modal -->
+    <div class="qr-modal" id="qrModal">
+        <div class="qr-content">
+            <h3><i class="fa-solid fa-qrcode"></i> Student Registration</h3>
+            <p>Scan this QR code with your mobile device to register</p>
+            <div id="qrCode"></div>
+            <p style="font-size: 0.75rem; color: #9CA3AF;">Admin approval required after registration</p>
+            <button class="close-qr" id="closeQR">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const publicURL = 'https://unweeping-undenunciated-lurline.ngrok-free.dev';
+        
+        document.getElementById('showQR').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('qrModal').classList.add('active');
+            
+            const qrContainer = document.getElementById('qrCode');
+            qrContainer.innerHTML = '';
+            const registrationURL = `${publicURL}/register_mobile`;
+            
+            new QRCode(qrContainer, {
+                text: registrationURL,
+                width: 200,
+                height: 200,
+                colorDark: "#26538D",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        });
+
+        document.getElementById('closeQR').addEventListener('click', () => {
+            document.getElementById('qrModal').classList.remove('active');
+        });
+
+        document.getElementById('qrModal').addEventListener('click', (e) => {
+            if (e.target.id === 'qrModal') {
+                document.getElementById('qrModal').classList.remove('active');
+            }
+        });
+    </script>
+
+</body>
+</html>

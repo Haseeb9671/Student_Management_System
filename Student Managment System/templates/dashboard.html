@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <h1><i class="fa-solid fa-chalkboard-user"></i> Teacher Dashboard</h1>
+        <div class="user-info">
+            <span class="username">Administrator</span>
+            <a href="/" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <!-- Action Cards Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+            
+            <!-- Add Student -->
+            <div class="section-card">
+                <h3><i class="fa-solid fa-user-plus"></i> Add Student</h3>
+                <form action="/add_student" method="POST" class="form-grid">
+                    <input type="text" name="reg_num" placeholder="Registration Number" required>
+                    <input type="text" name="name" placeholder="Full Name" required>
+                    <input type="text" name="department" placeholder="Department">
+                    <button type="submit" class="btn">
+                        <i class="fa-solid fa-plus"></i> Add Student
+                    </button>
+                </form>
+                
+                <hr style="border: none; border-top: 1px solid var(--grey-200); margin: 1.5rem 0;">
+                
+                <form action="/upload_csv" method="POST" enctype="multipart/form-data">
+                    <label style="display: block; margin-bottom: 0.75rem; font-weight: 500; color: var(--grey-700);">
+                        <i class="fa-solid fa-file-csv"></i> Bulk Import CSV
+                    </label>
+                    <div style="display: flex; gap: 0.75rem;">
+                        <input type="file" name="file" accept=".csv" required style="flex: 1;">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fa-solid fa-upload"></i> Upload
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Update Grades -->
+            <div class="section-card">
+                <h3><i class="fa-solid fa-pen-to-square"></i> Update Student Grades</h3>
+                <form action="/update_grades" method="POST" class="form-grid">
+                    <input type="text" name="reg_num" placeholder="Student ID" required style="grid-column: span 2;">
+                    <input type="number" name="assignment" placeholder="Assignment (0-20)" min="0" max="20">
+                    <input type="number" name="quiz" placeholder="Quiz (0-10)" min="0" max="10">
+                    <input type="number" name="behavior" placeholder="Behavior (0-10)" min="0" max="10">
+                    <input type="number" name="Mids" placeholder="Mid Term (0-30)" min="0" max="30">
+                    <input type="number" name="Final" placeholder="Final Term (0-30)" min="0" max="30">
+                    <button type="submit" class="btn" style="grid-column: span 2;">
+                        <i class="fa-solid fa-check"></i> Update Grades
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- CSV Manager -->
+        <div class="section-card">
+            <h3><i class="fa-solid fa-database"></i> CSV Manager</h3>
+            
+            <div class="alert alert-info">
+                <i class="fa-solid fa-info-circle"></i>
+                <span><strong>Note:</strong> Deleting removes students from portal. CSV files remain safe for backup.</span>
+            </div>
+            
+            <div class="csv-list">
+                {% if csv_backups %}
+                    {% for csv in csv_backups %}
+                    <div class="csv-item">
+                        <div class="csv-info">
+                            <div class="csv-name">
+                                <i class="fa-solid fa-file-csv"></i> {{ csv.name }}
+                            </div>
+                            <div class="csv-meta">
+                                <i class="fa-regular fa-clock"></i> {{ csv.date }} • 
+                                <i class="fa-solid fa-weight-scale"></i> {{ csv.size }} KB
+                            </div>
+                            <span class="csv-students">
+                                <i class="fa-solid fa-users"></i> {{ csv.students }} student(s)
+                            </span>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <a href="/download_csv/{{ csv.name }}" class="btn-action btn-download" title="Download">
+                                <i class="fa-solid fa-download"></i>
+                            </a>
+                            <button onclick="if(confirm('Delete {{ csv.students }} student(s)?\n\nThis removes them from portal only.\nCSV file stays safe in backup.')) window.location='/delete_csv/{{ csv.name }}'" 
+                                    class="btn-action btn-delete" title="Delete Students">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="text-align: center; padding: 3rem; color: var(--grey-400);">
+                        <i class="fa-solid fa-folder-open" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
+                        <p>No CSV backups yet. Upload a CSV to get started!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Performance Chart -->
+        <div class="section-card">
+            <h3><i class="fa-solid fa-chart-column"></i> Class Performance (Top 20 Students)</h3>
+            <div class="chart-container">
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Student Records Table -->
+        <div class="section-card">
+            <h3><i class="fa-solid fa-table"></i> Student Records & Attendance ({{ current_month }})</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Reg #</th>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Today</th>
+                            <th>Attd</th>
+                            <th>File</th>
+                            <th>Asgn</th>
+                            <th>Quiz</th>
+                            <th>Mids</th>
+                            <th>Final</th>
+                            <th>Total</th>
+                            <th>Grade</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in students %}
+                        <tr>
+                            <td style="font-weight: 600;">{{ s.reg_number }}</td>
+                            <td>{{ s.name }}</td>
+                            <td>{{ s.department if s.department else '-' }}</td>
+                            
+                            <td>
+                                {% if s.today_status == 'Present' %}
+                                    <span class="badge badge-success">
+                                        <i class="fa-solid fa-check"></i> Present
+                                    </span>
+                                {% elif s.today_status == 'Absent' %}
+                                    <span class="badge badge-danger">
+                                        <i class="fa-solid fa-xmark"></i> Absent
+                                    </span>
+                                {% else %}
+                                    <div style="display: flex; gap: 0.25rem;">
+                                        <a href="/mark_manual_attendance/{{ s.reg_number }}/Present" class="btn-action btn-present" title="Mark Present">
+                                            <i class="fa-solid fa-check"></i>
+                                        </a>
+                                        <a href="/mark_manual_attendance/{{ s.reg_number }}/Absent" class="btn-action btn-absent" title="Mark Absent">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </td>
+
+                            <td><span class="badge badge-info">{{ s.attendance }}</span></td>
+                            
+                            <td>
+                                {% if s.assignment_file %}
+                                    <a href="{{ url_for('download_file', filename=s.assignment_file) }}" target="_blank" class="btn-action btn-view" title="View">
+                                        <i class="fa-solid fa-file"></i>
+                                    </a>
+                                {% else %}
+                                    <span style="color: var(--grey-300);">-</span>
+                                {% endif %}
+                            </td>
+
+                            <td>{{ s.assignment_score }}</td>
+                            <td>{{ s.quiz_score }}</td>
+                            <td>{{ s.mid_term_score }}</td>
+                            <td>{{ s.final_term_score }}</td>
+                            <td><strong>{{ s.total }}</strong></td>
+                            <td>
+                                {% if s.grade == 'A' %} 
+                                    <span class="grade-a">A</span>
+                                {% elif s.grade == 'B' %} 
+                                    <span class="grade-b">B</span>
+                                {% elif s.grade == 'C' %} 
+                                    <span class="grade-c">C</span>
+                                {% elif s.grade == 'F' %} 
+                                    <span class="grade-f">F</span>
+                                {% else %} 
+                                    <span>{{ s.grade }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button onclick="if(confirm('Delete {{ s.name }}?')) window.location='/remove_student/{{ s.reg_number }}'" 
+                                        class="btn-action btn-delete" title="Delete">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="13" style="text-align: center; padding: 2rem; color: var(--grey-400);">
+                                <i class="fa-solid fa-users-slash" style="font-size: 2rem; display: block; margin-bottom: 0.5rem;"></i>
+                                No students found. Add students or upload a CSV.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const chartCanvas = document.getElementById('performanceChart');
+            if (chartCanvas) {
+                fetch('/api/stats')
+                .then(response => response.json())
+                .then(data => {
+                    if(data.labels.length === 0) return;
+                    
+                    const ctx = chartCanvas.getContext('2d');
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: data.labels,
+                            datasets: [{
+                                label: 'Total Score',
+                                data: data.values,
+                                backgroundColor: 'rgba(74, 144, 226, 0.8)',
+                                borderColor: '#26538D',
+                                borderWidth: 2,
+                                borderRadius: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100,
+                                    grid: {
+                                        color: 'rgba(0,0,0,0.05)'
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        display: false
+                                    }
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(err => console.error("Chart error:", err));
+            }
+        });
+    </script>
+</body>
+</html>

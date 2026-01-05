@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .registration-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #26538D, #4A90E2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem auto;
+        }
+
+        .header-icon i {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .header h2 {
+            color: #1F2937;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #6B7280;
+            font-size: 0.875rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            color: #374151;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .input-group label i {
+            color: #4A90E2;
+            margin-right: 0.25rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 0.875rem;
+            border: 1.5px solid #E5E7EB;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            transition: all 0.3s;
+            color: #1F2937;
+        }
+
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: #4A90E2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #26538D 0%, #4A90E2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(74, 144, 226, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .info-box {
+            background: #EFF6FF;
+            border-left: 4px solid #3B82F6;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+        }
+
+        .info-box p {
+            color: #1E40AF;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .info-box i {
+            margin-right: 0.5rem;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #6B7280;
+            font-size: 0.75rem;
+        }
+
+        /* Loading State */
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* Success/Error Messages */
+        .message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .message.success {
+            background: #D1FAE5;
+            color: #065F46;
+            border-left: 4px solid #10B981;
+        }
+
+        .message.error {
+            background: #FEE2E2;
+            color: #991B1B;
+            border-left: 4px solid #EF4444;
+        }
+
+        .message.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="registration-card">
+        <div class="header">
+            <div class="header-icon">
+                <i class="fa-solid fa-user-plus"></i>
+            </div>
+            <h2>Student Registration</h2>
+            <p>Fill in your details to register</p>
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <form action="/submit_registration" method="POST" id="registrationForm">
+            <div class="input-group">
+                <label for="name">
+                    <i class="fa-solid fa-user"></i> Full Name
+                </label>
+                <div class="input-wrapper">
+                    <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="reg_num">
+                    <i class="fa-solid fa-id-card"></i> Registration Number
+                </label>
+                <div class="input-wrapper">
+                    <input type="text" id="reg_num" name="reg_num" placeholder="e.g., 2025-DS-84" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="email">
+                    <i class="fa-solid fa-envelope"></i> University Email
+                </label>
+                <div class="input-wrapper">
+                    <input type="email" id="email" name="email" placeholder="your.email@university.edu" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="department">
+                    <i class="fa-solid fa-building-columns"></i> Department
+                </label>
+                <div class="input-wrapper">
+                    <input type="text" id="department" name="department" placeholder="e.g., Computer Science" required>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+                <i class="fa-solid fa-paper-plane"></i>
+                Submit for Approval
+            </button>
+        </form>
+
+        <div class="info-box">
+            <p>
+                <i class="fa-solid fa-info-circle"></i>
+                <strong>Note:</strong> Your request will be reviewed by the admin. Login credentials will be issued after approval.
+            </p>
+        </div>
+
+        <div class="footer">
+            <p>Made with ❤️ by Haseeb and Hassaan</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('submitBtn');
+            const message = document.getElementById('message');
+            
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+            
+            // Hide previous messages
+            message.classList.remove('show', 'success', 'error');
+        });
+
+        // Check if we have a response message in URL (optional enhancement)
+        const urlParams = new URLSearchParams(window.location.search);
+        const status = urlParams.get('status');
+        const messageDiv = document.getElementById('message');
+        
+        if (status === 'success') {
+            messageDiv.textContent = '✓ Registration submitted successfully! Please wait for admin approval.';
+            messageDiv.classList.add('success', 'show');
+        } else if (status === 'error') {
+            messageDiv.textContent = '✗ Registration failed. Please try again or contact admin.';
+            messageDiv.classList.add('error', 'show');
+        }
+    </script>
+
+</body>
+</html>

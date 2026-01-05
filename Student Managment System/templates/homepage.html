@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Homepage</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <h1><i class="fa-solid fa-graduation-cap"></i> University LMS</h1>
+        <div class="user-info">
+            <span class="username">{{ session.get('user_name', 'User') }}</span>
+            <a href="/" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <!-- Welcome Banner -->
+        <div style="text-align: center; margin: 3rem 0 2rem 0;">
+            <h1 style="font-size: 2.5rem; color: var(--grey-800); margin-bottom: 0.5rem;">
+                Welcome Back, <span style="color: var(--primary-blue);">{{ session.get('user_name', 'User') }}</span>
+            </h1>
+            <p style="color: var(--grey-500); font-size: 1.125rem;">Select a module to continue</p>
+        </div>
+
+        <!-- Module Cards Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; max-width: 1000px; margin: 0 auto;">
+            
+            {% if session.get('role') == 'admin' %}
+                <!-- Teacher Dashboard Card -->
+                <a href="/dashboard" style="text-decoration: none;">
+                    <div class="section-card" style="text-align: center; padding: 3rem 2rem; transition: all 0.3s; cursor: pointer;">
+                        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #26538D, #4A90E2); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
+                            <i class="fa-solid fa-chalkboard-user" style="font-size: 2.5rem; color: white;"></i>
+                        </div>
+                        <h3 style="color: var(--grey-800); margin-bottom: 0.75rem; font-size: 1.5rem;">Teacher Dashboard</h3>
+                        <p style="color: var(--grey-500); line-height: 1.6;">Manage students, grades, attendance, and upload files</p>
+                    </div>
+                </a>
+
+                <!-- Change Password Card -->
+                <a href="/change_password" style="text-decoration: none;">
+                    <div class="section-card" style="text-align: center; padding: 3rem 2rem; transition: all 0.3s; cursor: pointer;">
+                        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #10B981, #059669); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
+                            <i class="fa-solid fa-lock" style="font-size: 2.5rem; color: white;"></i>
+                        </div>
+                        <h3 style="color: var(--grey-800); margin-bottom: 0.75rem; font-size: 1.5rem;">Security</h3>
+                        <p style="color: var(--grey-500); line-height: 1.6;">Update your admin security credentials</p>
+                    </div>
+                </a>
+            
+            {% elif session.get('role') == 'student' %}
+                <!-- My Dashboard Card -->
+                <a href="/student_dashboard" style="text-decoration: none;">
+                    <div class="section-card" style="text-align: center; padding: 3rem 2rem; transition: all 0.3s; cursor: pointer;">
+                        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #26538D, #4A90E2); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
+                            <i class="fa-solid fa-user-graduate" style="font-size: 2.5rem; color: white;"></i>
+                        </div>
+                        <h3 style="color: var(--grey-800); margin-bottom: 0.75rem; font-size: 1.5rem;">My Dashboard</h3>
+                        <p style="color: var(--grey-500); line-height: 1.6;">View your grades, attendance, and academic progress</p>
+                    </div>
+                </a>
+
+                <!-- Upload Assignments Card -->
+                <a href="/student_dashboard" style="text-decoration: none;">
+                    <div class="section-card" style="text-align: center; padding: 3rem 2rem; transition: all 0.3s; cursor: pointer;">
+                        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #F59E0B, #D97706); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
+                            <i class="fa-solid fa-cloud-upload-alt" style="font-size: 2.5rem; color: white;"></i>
+                        </div>
+                        <h3 style="color: var(--grey-800); margin-bottom: 0.75rem; font-size: 1.5rem;">Assignments</h3>
+                        <p style="color: var(--grey-500); line-height: 1.6;">Submit your homework and track submissions</p>
+                    </div>
+                </a>
+
+                <!-- Security Card -->
+                <a href="/change_password" style="text-decoration: none;">
+                    <div class="section-card" style="text-align: center; padding: 3rem 2rem; transition: all 0.3s; cursor: pointer;">
+                        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #10B981, #059669); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
+                            <i class="fa-solid fa-key" style="font-size: 2.5rem; color: white;"></i>
+                        </div>
+                        <h3 style="color: var(--grey-800); margin-bottom: 0.75rem; font-size: 1.5rem;">Security</h3>
+                        <p style="color: var(--grey-500); line-height: 1.6;">Change your login password</p>
+                    </div>
+                </a>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <style>
+        .section-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+        }
+    </style>
+
+</body>
+</html>

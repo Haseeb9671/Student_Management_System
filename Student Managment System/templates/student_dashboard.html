@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <h1><i class="fa-solid fa-graduation-cap"></i> Student Portal</h1>
+        <div class="user-info">
+            <span class="username">{{ student_name }}</span>
+            <a href="/" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fa-solid fa-calendar-check"></i></div>
+                <div class="stat-content">
+                    <h4>Attendance ({{ current_month }})</h4>
+                    <p>{{ attendance }} Days</p>
+                </div>
+            </div>
+
+            <div class="stat-card" style="background: linear-gradient(135deg, #10B981, #059669);">
+                <div class="stat-icon"><i class="fa-solid fa-star"></i></div>
+                <div class="stat-content">
+                    <h4>Total Score</h4>
+                    <p>{{ (grades.assignment_score or 0) + (grades.quiz_score or 0) + (grades.mid_term_score or 0) + (grades.final_term_score or 0) + (grades.behavior_score or 0) }}/100</p>
+                </div>
+            </div>
+
+            <div class="stat-card" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
+                <div class="stat-icon"><i class="fa-solid fa-clipboard-check"></i></div>
+                <div class="stat-content">
+                    <h4>Assignments</h4>
+                    <p>{% if grades and grades.assignment_file %}Submitted{% else %}Pending{% endif %}</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            
+            <!-- Assignment Submission -->
+            <div class="section-card">
+                <h3><i class="fa-solid fa-cloud-arrow-up"></i> Assignment Submission</h3>
+                
+                {% if grades and grades.assignment_file %}
+                    <div class="alert alert-success">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <div>
+                            <strong>Submitted Successfully!</strong><br>
+                            <small>File: {{ grades.assignment_file }}</small>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fa-solid fa-exclamation-triangle"></i>
+                        <strong>Pending Submission</strong>
+                    </div>
+                {% endif %}
+
+                <form action="/upload_assignment" method="POST" enctype="multipart/form-data" style="margin-top: 1rem;">
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; color: var(--grey-700); font-weight: 500;">
+                            Select File (PDF, Docx, Image)
+                        </label>
+                        <input type="file" name="file" required>
+                    </div>
+                    <button type="submit" class="btn">
+                        <i class="fa-solid fa-upload"></i> Upload Assignment
+                    </button>
+                </form>
+            </div>
+
+            <!-- Performance Report -->
+            <div class="section-card">
+                <h3><i class="fa-solid fa-chart-line"></i> Performance Report</h3>
+                
+                <table style="margin-top: 1rem;">
+                    <tbody>
+                        <tr>
+                            <td style="font-weight: 600; color: var(--grey-700);">
+                                <i class="fa-solid fa-file-lines"></i> Assignment Score
+                            </td>
+                            <td style="text-align: right; font-weight: 700; color: var(--primary-blue); font-size: 1.125rem;">
+                                {{ grades.assignment_score if grades and grades.assignment_score else 0 }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; color: var(--grey-700);">
+                                <i class="fa-solid fa-clipboard-question"></i> Quiz Score
+                            </td>
+                            <td style="text-align: right; font-weight: 700; color: var(--primary-blue); font-size: 1.125rem;">
+                                {{ grades.quiz_score if grades and grades.quiz_score else 0 }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; color: var(--grey-700);">
+                                <i class="fa-solid fa-book-open"></i> Mid Term Score
+                            </td>
+                            <td style="text-align: right; font-weight: 700; color: var(--primary-blue); font-size: 1.125rem;">
+                                {{ grades.mid_term_score if grades and grades.mid_term_score else 0 }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; color: var(--grey-700);">
+                                <i class="fa-solid fa-graduation-cap"></i> Final Term Score
+                            </td>
+                            <td style="text-align: right; font-weight: 700; color: var(--primary-blue); font-size: 1.125rem;">
+                                {{ grades.final_term_score if grades and grades.final_term_score else 0 }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; color: var(--grey-700);">
+                                <i class="fa-solid fa-user-check"></i> Behavior Score
+                            </td>
+                            <td style="text-align: right; font-weight: 700; color: var(--primary-blue); font-size: 1.125rem;">
+                                {{ grades.behavior_score if grades and grades.behavior_score else 0 }}
+                            </td>
+                        </tr>
+                        <tr style="background: var(--sky-blue); border-top: 2px solid var(--primary-blue);">
+                            <td style="font-weight: 700; color: var(--primary-blue); font-size: 1rem;">
+                                <i class="fa-solid fa-trophy"></i> TOTAL SCORE
+                            </td>
+                            <td style="text-align: right; font-weight: 800; color: var(--primary-blue); font-size: 1.5rem;">
+                                {{ (grades.assignment_score or 0) + (grades.quiz_score or 0) + (grades.mid_term_score or 0) + (grades.final_term_score or 0) + (grades.behavior_score or 0) }}/100
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Academic Progress -->
+        <div class="section-card">
+            <h3><i class="fa-solid fa-chart-bar"></i> Academic Progress</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                
+                <div style="background: var(--grey-50); padding: 1.5rem; border-radius: 8px; border-left: 4px solid #10B981;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <p style="font-size: 0.875rem; color: var(--grey-600); margin-bottom: 0.25rem;">Assignments</p>
+                            <p style="font-size: 1.5rem; font-weight: 700; color: var(--grey-800);">{{ grades.assignment_score if grades else 0 }}%</p>
+                        </div>
+                        <i class="fa-solid fa-file-lines" style="font-size: 2rem; color: #10B981; opacity: 0.3;"></i>
+                    </div>
+                </div>
+
+                <div style="background: var(--grey-50); padding: 1.5rem; border-radius: 8px; border-left: 4px solid #3B82F6;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <p style="font-size: 0.875rem; color: var(--grey-600); margin-bottom: 0.25rem;">Quizzes</p>
+                            <p style="font-size: 1.5rem; font-weight: 700; color: var(--grey-800);">{{ grades.quiz_score if grades else 0 }}%</p>
+                        </div>
+                        <i class="fa-solid fa-clipboard-question" style="font-size: 2rem; color: #3B82F6; opacity: 0.3;"></i>
+                    </div>
+                </div>
+
+                <div style="background: var(--grey-50); padding: 1.5rem; border-radius: 8px; border-left: 4px solid #F59E0B;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <p style="font-size: 0.875rem; color: var(--grey-600); margin-bottom: 0.25rem;">Mid Term</p>
+                            <p style="font-size: 1.5rem; font-weight: 700; color: var(--grey-800);">{{ grades.mid_term_score if grades else 0 }}%</p>
+                        </div>
+                        <i class="fa-solid fa-book-open" style="font-size: 2rem; color: #F59E0B; opacity: 0.3;"></i>
+                    </div>
+                </div>
+
+                <div style="background: var(--grey-50); padding: 1.5rem; border-radius: 8px; border-left: 4px solid #EF4444;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <p style="font-size: 0.875rem; color: var(--grey-600); margin-bottom: 0.25rem;">Final Term</p>
+                            <p style="font-size: 1.5rem; font-weight: 700; color: var(--grey-800);">{{ grades.final_term_score if grades else 0 }}%</p>
+                        </div>
+                        <i class="fa-solid fa-graduation-cap" style="font-size: 2rem; color: #EF4444; opacity: 0.3;"></i>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
